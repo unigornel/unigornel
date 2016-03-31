@@ -73,6 +73,7 @@ elif [ "$CMD" = "compile" ]; then
         [ -z "$GOPATH" ] && error "cannot build app: GOPATH not set"
 
         BUILD_DIR=build-$$
+        do_cmd rm -rf "$BUILD_DIR"
 
         # Copy header files
         echo "Compiling Go in ./$BUILD_DIR"
@@ -129,6 +130,7 @@ elif [ "$CMD" = minios ]; then
 elif [ "$CMD" = app ]; then
     if [ -n "$APP_DIR" ]; then
         BUILD_DIR=build-$$
+        do_cmd rm -rf "$BUILD_DIR"
         echo "Building application in ./$BUILD_DIR"
         do_cmd mkdir "$BUILD_DIR"
 
