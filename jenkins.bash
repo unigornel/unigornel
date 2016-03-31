@@ -11,5 +11,5 @@ function error {
 [ -f "$MINIOS_SSH_KEY" ] || error "file in MINIOS_SSH_KEY not found: $MINIOS_SSH_KEY"
 
 set -x
-GIT_SSH="ssh -i $GO_SSH_KEY"        git submodule update --init go
-GIT_SSH="ssh -i $MINIOS_SSH_KEY"    git submodule update --init minios
+GIT_SSH_COMMAND="ssh -i $GO_SSH_KEY"        git submodule update --init go
+GIT_SSH_COMMAND="ssh -i $MINIOS_SSH_KEY"    git submodule update --init minios
