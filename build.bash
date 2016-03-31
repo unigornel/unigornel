@@ -90,8 +90,8 @@ elif [ "$CMD" = "compile" ]; then
         goroot="$(realpath "../go")"
 
         opts=
-        [ "$X_FLAG" = y ] && opts="$OPTS -x"
-        [ "$A_FLAG" = y ] && opts="$OPTS -a"
+        [ "$X_FLAG" = y ] && opts="$opts -x"
+        [ "$A_FLAG" = y ] && opts="$opts -a"
 
         pushd "$APP_DIR"
         export GOPATH
