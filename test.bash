@@ -15,5 +15,5 @@ function itime {
 export GOROOT_BOOTSTRAP
 
 set -x
-itime -v ./build.bash go
-GOPATH=$PWD/minios/go itime -v ./build.bash app -a -x --app minios/go/src/sum/
+#itime -p ./build.bash go
+GOPATH=$PWD/minios/go itime -p ./build.bash app -a -x --app minios/go/src/sum/
