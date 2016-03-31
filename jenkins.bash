@@ -20,7 +20,7 @@ function git_update_submodule_with_ssh {
 ssh -i "$file" "\$@"
 EOF
     chmod 0755 ssh-wrapper.sh
-    do_cmd GIT_SSH=./ssh-wrapper.sh git submodule update --init "$name"
+    do_cmd GIT_SSH=$PWD/ssh-wrapper.sh git submodule update --init "$name"
     rm ssh-wrapper.sh
 }
 
