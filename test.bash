@@ -11,4 +11,4 @@ function error {
 export GOROOT_BOOTSTRAP
 
 ./build.bash go
-./build.bash app -a -x --app minios/go/src/sum/
+GOPATH=$PWD/minios/go ./build.bash app -a -x --app minios/go/src/sum/
