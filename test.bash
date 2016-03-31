@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 function error {
     echo error: "$@"
     exit 1
