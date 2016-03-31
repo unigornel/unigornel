@@ -78,9 +78,12 @@ elif [ "$CMD" = "compile" ]; then
         # Copy header files
         echo "Compiling Go in ./$BUILD_DIR"
         do_cmd mkdir "$BUILD_DIR"
-        do_cmd cp Makefile.app "$BUILD_DIR"/Makefile
-        pushd "$BUILD_DIR"
         echo "[+] Copying header files"
+        do_cmd cp Makefile.app "$BUILD_DIR"/Makefile
+        pushd minios
+        do_cmd make links
+        popd
+        pushd "$BUILD_DIR"
         do_cmd MINIOS_ROOT=../minios make include/mini-os
         popd
 
