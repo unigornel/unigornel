@@ -88,7 +88,7 @@ elif [ "$CMD" = "compile" ]; then
         [ -z "$O_FLAG" ] && out="$BUILD_DIR"/a.out || out="$O_FLAG"
         out="$(realpath "$out")"
         include="$(realpath "$BUILD_DIR"/include)"
-        goroot="$(realpath "../go")"
+        goroot="$(realpath "./go")"
 
         opts=
         [ "$X_FLAG" = y ] && opts="$opts -x"
