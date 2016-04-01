@@ -99,6 +99,69 @@ class UnigornelApp(object):
                     stdout = str(b)
                 return stdout
 
+class Kernel(object):
+    def __init__(self, kernel, memory, name, on_crash='preserve'):
+        self.kernel = kernel
+        self.memory = memory
+        self.name = name
+        self.on_crash = "preserve"
+
+class XenGuest(object):
+    STATE_RUNNING       = 0x01
+    STATE_BLOCKED       = 0x02
+    STATE_PAUSED        = 0x04
+    STATE_SHUTDOWN      = 0x08
+    STATE_CRASHED       = 0x10
+    STATE_DYING         = 0x20
+
+    def __init__(self, name, id, mem, vcpus, raw_state, time):
+        self.name = name
+        self.id = id
+        self.mem = mem
+        self.vcpus = vcpus
+        self.raw_state = raw_state
+        self.time = time
+
+    @property
+    def state(self):
+        return XenGuest.parse_state(self.raw_state)
+
+    def destroy(self):
+        from subprocess import Popen
+        with Popen(['xl', 'destroy', str(self.id)]):
+            pass
+
+    @classmethod
+    def from_xl_list_line(cls, line):
+        import re
+        name, id, mem, vcpus, state, time = re.split('\s+', line)
+        return cls(name, int(id), int(mem), int(vcpus), state, float(time))
+
+    @classmethod
+    def list(cls):
+        from subprocess import Popen, PIPE
+
+        with Popen(['xl', 'list'], stdout=PIPE) as proc:
+            proc.stdout.readline() # discard header
+            m = map(lambda b: cls.from_xl_list_line(b.decode('utf-8').strip()), proc.stdout)
+            return list(m)
+
+    @staticmethod
+    def parse_state(raw_state):
+        mask = 0
+        r, b, p, s, c, d = list(raw_state)
+        if r == 'r': mask |= XenGuest.STATE_RUNNING
+        if b == 'b': mask |= XenGuest.STATE_BLOCKED
+        if p == 'p': mask |= XenGuest.STATE_PAUSED
+        if s == 's': mask |= XenGuest.STATE_SHUTDOWN
+        if c == 'c': mask |= XenGuest.STATE_CRASHED
+        if d == 'd': mask |= XenGuest.STATE_DYING
+        return mask
+
+    def __repr__(self):
+        f = [self.name, self.id, self.mem, self.vcpus, self.raw_state, self.time]
+        return 'XenGuest(name={0}, id={1}, mem={2}, vcpus={3}, raw_state={4}, time={5}'.format(*f)
+
 def main(unigornel_root, tests, **kwargs):
     if tests is not None:
         try:
