@@ -99,6 +99,10 @@ class UnigornelApp(object):
                     stdout = str(b)
                 return stdout
 
+                proc.wait()
+                if proc.returncode != 0:
+                    raise Exception('error: build.bash returned code {0}'.format(proc.returncode))
+
 class Kernel(object):
     def __init__(self, kernel, memory, name, on_crash='preserve'):
         self.kernel = kernel
