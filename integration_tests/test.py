@@ -137,7 +137,14 @@ class Kernel(object):
         f = [self.kernel, self.memory, self.name, self.on_crash]
         return 'Kernel(kernel={0}, memory={1}, name={2}, on_crash={3}'.format(*f)
 
+class XenGuestState(object):
+    def __init__(self, final_state, did_timeout, console):
+        self.final_state = final_state
+        self.did_timeout = did_timeout
+        self.console = console
+
 class XenGuest(object):
+    STATE_UNKNOWN       = 0x00
     STATE_RUNNING       = 0x01
     STATE_BLOCKED       = 0x02
     STATE_PAUSED        = 0x04
@@ -157,9 +164,47 @@ class XenGuest(object):
     def state(self):
         return XenGuest.parse_state(self.raw_state)
 
+    def is_shutdown(self): return bool(self.state & self.STATE_SHUTDOWN)
+    def is_crashed(self):  return bool(self.state & self.STATE_CRASHED)
+
+    def current(self):
+        return next(filter(lambda g: g.id == self.id, XenGuest.list()), None)
+
     def destroy(self):
         from subprocess import call
         call(['xl', 'destroy', str(self.id)])
+
+    def unpause_and_collect(self, timeout):
+        from subprocess import Popen, PIPE, STDOUT, call
+        with Popen(['xl', 'console', str(self.id)], stdout=PIPE, stderr=STDOUT, stdin=PIPE) as console:
+            call(['xl', 'unpause', str(self.id)])
+
+            # Wait until the unikernel is shutdown or the timeout is reached
+            deadline = time.monotonic() + timeout
+            did_timeout = False
+            while True:
+                current = self.current()
+                if not current:
+                    final_state = self.STATE_UNKNOWN
+                    break
+                elif current.is_shutdown() or current.is_crashed():
+                    final_state = current.state
+                    break
+                elif time.monotonic() > deadline:
+                    final_state = current.state
+                    did_timeout = True
+                    break
+                time.sleep(1.0)
+
+            console.kill()
+            console.wait(timeout=1)
+
+            b = console.stdout.read()
+            try:
+                stdout = b.decode('utf-8')
+            except UnicodeDecodeError:
+                stdout = str(b)
+            return XenGuestState(final_state, did_timeout, stdout)
 
     @classmethod
     def from_xl_list_line(cls, line):
