@@ -61,7 +61,7 @@ class UnigornelApp(object):
         self.gopath = gopath
         self.unigornel_root = unigornel_root
 
-    def build(self, out=None, build_all=True, verbose=False):
+    def build(self, out=None, build_all=True, verbose=True):
         from subprocess import Popen, PIPE
 
         argv = [self.BUILD_CMD, 'app', '--app', self.path]
