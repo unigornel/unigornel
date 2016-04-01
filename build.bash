@@ -8,6 +8,7 @@ function usage {
     echo "       build.bash minios --goarchive app/app.a --goinclude app/"
     echo "       build.bash compile --app path/to/app/dir/ [-o path/to/app.a] [-a] [-x]"
     echo "       build.bash app --app path/to/app/dir/ [-o minios] [-a] [-x]"
+    echo "       build.bash clean"
 }
 
 
@@ -160,6 +161,10 @@ elif [ "$CMD" = app ]; then
     else
         error "missing --app flag"
     fi
+
+# Clean
+elif [ "$CMD" = clean ]; then
+    do_cmd rm -rf build-*
 
 # Unknown command
 else
