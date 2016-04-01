@@ -180,6 +180,8 @@ class XenGuest(object):
             if proc.returncode != 0:
                 raise Exception('error: xl list returned code {0}'.format(proc.returncode))
 
+            return guests
+
     @staticmethod
     def parse_state(raw_state):
         mask = 0
