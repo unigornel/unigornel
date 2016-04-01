@@ -110,6 +110,33 @@ class Kernel(object):
         self.name = name
         self.on_crash = "preserve"
 
+    def create_paused_guest(self):
+        from tempfile import NamedTemporaryFile
+        from subprocess import call
+        with NamedTemporaryFile('w') as config:
+            print('kernel = "{0}"'.format(self.kernel),     file=config)
+            print('memory = {0}'.format(self.memory),       file=config)
+            print('name = "{0}"'.format(self.name),         file=config)
+            print('on_crash = "{0}"'.format(self.on_crash), file=config)
+            config.flush()
+            path = config.name
+
+            log('Creating {0} with configuration {1}'.format(repr(self), path))
+            call(['xl', 'create', '-p', '-f', path])
+
+        try:
+            guest = next(filter(lambda g: g.name == self.name, XenGuest.list()))
+        except StopIteration:
+            raise Exception('Failed to launch guest: could not find guest with matching name')
+
+        assert(guest.state & guest.STATE_PAUSED)
+
+        return guest
+
+    def __repr__(self):
+        f = [self.kernel, self.memory, self.name, self.on_crash]
+        return 'Kernel(kernel={0}, memory={1}, name={2}, on_crash={3}'.format(*f)
+
 class XenGuest(object):
     STATE_RUNNING       = 0x01
     STATE_BLOCKED       = 0x02
