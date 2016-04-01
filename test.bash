@@ -48,6 +48,6 @@ fi
 if [ "$INTEGRATION" = y ]; then
     unigornel_root="$PWD"
     pushd integration_tests
-    UNIGORNEL_ROOT="$unigornel_root" do_cmd itime -p python3 test.py
+    UNIGORNEL_ROOT="$unigornel_root" do_cmd itime -p python3 test.py --junit "integration_tests.xml"
     popd
 fi
