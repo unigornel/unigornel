@@ -158,9 +158,8 @@ class XenGuest(object):
         return XenGuest.parse_state(self.raw_state)
 
     def destroy(self):
-        from subprocess import Popen
-        with Popen(['xl', 'destroy', str(self.id)]):
-            pass
+        from subprocess import call
+        call(['xl', 'destroy', str(self.id)])
 
     @classmethod
     def from_xl_list_line(cls, line):
@@ -175,7 +174,11 @@ class XenGuest(object):
         with Popen(['xl', 'list'], stdout=PIPE) as proc:
             proc.stdout.readline() # discard header
             m = map(lambda b: cls.from_xl_list_line(b.decode('utf-8').strip()), proc.stdout)
-            return list(m)
+            guests = list(m)
+
+            proc.wait()
+            if proc.returncode != 0:
+                raise Exception('error: xl list returned code {0}'.format(proc.returncode))
 
     @staticmethod
     def parse_state(raw_state):
