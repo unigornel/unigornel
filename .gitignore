@@ -3,3 +3,8 @@
 
 # Build
 build-*
+*.xml
+
+# Python
+__pycache__
+*.pyc
