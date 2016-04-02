@@ -289,6 +289,7 @@ class XenGuest(object):
                     break
                 time.sleep(1.0)
 
+            time.sleep(1.0) # give console time to catch up
             console.kill()
             console.wait(timeout=1)
 
