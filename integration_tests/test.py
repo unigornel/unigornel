@@ -8,7 +8,7 @@ from junit_xml import TestCase, TestSuite
 SILENT = False
 
 class IntegrationTest(object):
-    def __init__(self, name, path, package, mem=256, timeout=10, can_crash=False, can_shutdown=False, check_state=lambda o: (True, None)):
+    def __init__(self, name, path, package, mem=256, timeout=10, can_crash=False, can_shutdown=False, check_state=None):
         self.name = name
         self.path = path
         self.package = package
@@ -33,7 +33,7 @@ class IntegrationTest(object):
             getattr(m, 'timeout', 10),
             getattr(m, 'can_crash', False),
             getattr(m, 'can_shutdown', False),
-            getattr(m, 'check_state', lambda o: (True, None))
+            getattr(m, 'check_state', None),
         )
 
     @classmethod
@@ -139,7 +139,14 @@ class IntegrationTest(object):
                 return None, 'The kernel shutdown unexpectedly (state={0})'.format(hex(state.final_state))
 
             try:
-                ok, err = self.check_state(state)
+                if self.check_state:
+                    log('Checking state with custom function')
+                    cs = self.check_state
+                else:
+                    log('No custom check state function defined')
+                    cs = lambda _: (True, None)
+
+                ok, err = cs(state)
                 if not ok:
                     return None, 'State error: {0}'.format(err)
                 log('State checks passed')
