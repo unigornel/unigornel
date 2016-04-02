@@ -107,6 +107,7 @@ class IntegrationTest(object):
         return build_test_case('build', self.name, f)
 
     def execute(self, kernel_path, kernel_name):
+        start = time.monotonic()
         k = Kernel(kernel_path, self.mem, kernel_name)
         g = None
         state = None
@@ -129,7 +130,8 @@ class IntegrationTest(object):
                 raise exc
             return state.console, None
 
-        return g, state, build_test_case('execute', self.name, f)
+        duration = time.monotonic() - start
+        return g, state, build_test_case('execute', self.name, f, duration=duration)
 
     def check(self, state):
         def f():
@@ -409,7 +411,7 @@ def pushd(dirname):
             chdir(self.original_dir)
     return PushdContext(dirname)
 
-def build_test_case(name, classname, f):
+def build_test_case(name, classname, f, duration=None):
     from traceback import format_exc
     start = time.monotonic()
     try:
@@ -421,6 +423,7 @@ def build_test_case(name, classname, f):
         log(output)
 
     elapsed = time.monotonic() - start
+    elapsed = elapsed if not duration else duration
     tc = TestCase(name, classname, elapsed, output)
     if failure is not None:
         tc.add_failure_info(failure)
