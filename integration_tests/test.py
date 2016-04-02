@@ -8,10 +8,12 @@ from junit_xml import TestCase, TestSuite
 SILENT = False
 
 class IntegrationTest(object):
-    def __init__(self, name, path, package):
+    def __init__(self, name, path, package, mem=256, timeout=10):
         self.name = name
         self.path = path
         self.package = package
+        self.mem = mem
+        self.timeout = 10
 
     @classmethod
     def load(cls, path):
@@ -20,7 +22,13 @@ class IntegrationTest(object):
 
     @classmethod
     def from_module(cls, m):
-        return cls(m.name, m.__path__[0], m.package)
+        return cls(
+            m.name,
+            m.__path__[0],
+            m.package,
+            getattr(m, 'mem', 256),
+            getattr(m, 'timeout', 10),
+        )
 
     @classmethod
     def discover(cls, path='.'):
@@ -40,32 +48,73 @@ class IntegrationTest(object):
         return list(tests)
 
     def run(self, unigornel_root):
-        steps = [
-            lambda: self.build(unigornel_root)
-        ]
+        from tempfile import mkstemp
+
+        prefix = 'unigornel-{0}-'.format(self.name)
+        _, kernel_path = mkstemp(prefix=prefix)
+        kernel_name = os.path.basename(kernel_path)
+
         cases = []
-        for s in steps:
-            c = s()
+        def f(cases):
+            # Build application
+            c = self.build(unigornel_root, out=kernel_path)
             cases.append(c)
             if c.is_failure():
-                break
+                return None
+
+            # Execute application
+            guest, state, c = self.execute(kernel_path, kernel_name)
+            cases.append(c)
+            if c.is_failure():
+                return guest
+
+            return guest
+
+        guest = f(cases)
+        if guest:
+            try:
+                guest.destroy()
+            except:
+                pass
 
         return TestSuite(self.name, cases)
 
-    def build(self, unigornel_root):
+    def build(self, unigornel_root, out=None):
         def f():
             log("Building '{0}': package {1}".format(self.name, self.package))
 
             gopath = os.path.join(self.path, 'go')
             app_path = os.path.join(self.path, 'go', 'src', self.package)
             app = UnigornelApp(app_path, gopath, unigornel_root)
-            output = app.build()
+            output = app.build(out=out)
             log(output)
             return output, None
         return build_test_case('build', self.name, f)
 
-    def execute(self):
-        pass
+    def execute(self, kernel_path, kernel_name):
+        k = Kernel(kernel_path, self.mem, kernel_name)
+        g = None
+        state = None
+        exc = None
+        try:
+            try:
+                g = k.create_paused_guest()
+            except Exception as e:
+                raise Exception('Could not create guest with kernel {0}'.format(kernel_path)) from e
+
+            try:
+                state = g.unpause_and_collect(timeout=self.timeout)
+            except Exception as e:
+                raise Exception('Could not run guest with kernel {0}'.format(kernel_path)) from e
+        except Exception as e:
+            exc = e
+
+        def f():
+            if exc:
+                raise exc
+            return state.console, None
+
+        return g, state, build_test_case('execute', self.name, f)
 
     def clean(self):
         pass
