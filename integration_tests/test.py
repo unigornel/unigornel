@@ -144,11 +144,10 @@ class IntegrationTest(object):
                     cs = self.check_state
                 else:
                     log('No custom check state function defined')
-                    cs = lambda _: (True, None)
+                    cs = lambda _: None
 
-                ok, err = cs(state)
-                if not ok:
-                    return None, 'State error: {0}'.format(err)
+                cs(state)
+
                 log('State checks passed')
                 return 'OK', None
             except Exception as e:
