@@ -8,12 +8,15 @@ from junit_xml import TestCase, TestSuite
 SILENT = False
 
 class IntegrationTest(object):
-    def __init__(self, name, path, package, mem=256, timeout=10):
+    def __init__(self, name, path, package, mem=256, timeout=10, can_crash=False, can_shutdown=False, check_state=lambda o: (True, None)):
         self.name = name
         self.path = path
         self.package = package
         self.mem = mem
         self.timeout = 10
+        self.can_crash = can_crash
+        self.can_shutdown = can_shutdown
+        self.check_state = check_state
 
     @classmethod
     def load(cls, path):
@@ -28,6 +31,9 @@ class IntegrationTest(object):
             m.package,
             getattr(m, 'mem', 256),
             getattr(m, 'timeout', 10),
+            getattr(m, 'can_crash', False),
+            getattr(m, 'can_shutdown', False),
+            getattr(m, 'check_state', lambda o: (True, None))
         )
 
     @classmethod
@@ -65,17 +71,26 @@ class IntegrationTest(object):
             # Execute application
             guest, state, c = self.execute(kernel_path, kernel_name)
             cases.append(c)
+            if guest:
+                log('Executed guest {0}'.format(repr(guest)))
+            if state:
+                log(state.console)
+                log('Guest exited with state {0}'.format(hex(state.final_state)))
+
+            if c.is_failure():
+                return guest
+
+            # Check state
+            log('Checking final kernel state')
+            c = self.check(state)
+            cases.append(c)
             if c.is_failure():
                 return guest
 
             return guest
 
         guest = f(cases)
-        if guest:
-            try:
-                guest.destroy()
-            except:
-                pass
+        self.clean(guest, kernel_path)
 
         return TestSuite(self.name, cases)
 
@@ -116,8 +131,37 @@ class IntegrationTest(object):
 
         return g, state, build_test_case('execute', self.name, f)
 
-    def clean(self):
-        pass
+    def check(self, state):
+        def f():
+            if not self.can_crash and bool(state.final_state & XenGuest.STATE_CRASHED):
+                return None, 'The kernel crashed unexpectedly (state={0})'.format(hex(state.final_state))
+            if not self.can_shutdown and bool(state.final_state & XenGuest.STATE_SHUTDOWN):
+                return None, 'The kernel shutdown unexpectedly (state={0})'.format(hex(state.final_state))
+
+            try:
+                ok, err = self.check_state(state)
+                if not ok:
+                    return None, 'State error: {0}'.format(err)
+                log('State checks passed')
+                return 'OK', None
+            except Exception as e:
+                raise Exception('An exception occurred while checking state') from e
+        return build_test_case('check_state', self.name, f)
+
+    def clean(self, guest, kernel_path):
+        def clean_guest(g):
+            if g:
+                g.destroy()
+
+        ops = [
+            lambda: clean_guest(guest),
+            lambda: os.remove(kernel_path),
+        ]
+        for o in ops:
+            try:
+                o()
+            except:
+                pass
 
 class UnigornelApp(object):
     BUILD_CMD = './build.bash'
@@ -363,9 +407,11 @@ def build_test_case(name, classname, f):
     start = time.monotonic()
     try:
         output, failure = f()
-    except Exception as e:
-        output = format_exc(e)
+    except Exception:
+        output = format_exc()
         failure = "An unexpected exception occurred."
+        log('{0}:'.format(failure))
+        log(output)
 
     elapsed = time.monotonic() - start
     tc = TestCase(name, classname, elapsed, output)
