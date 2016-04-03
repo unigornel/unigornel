@@ -1,6 +1,8 @@
 unigornel
 =========
 
+[![Build Status](https://jenkins.unigornel.org/buildStatus/icon?job=unigornel-master)](https://jenkins.unigornel.org/job/unigornel-master/)
+
 To clone this repository use
 
 ```
