@@ -79,5 +79,6 @@ if submodule_did_change minios; then
 fi
 
 do_cmd git add go minios
-do_cmd git commit -t $COMMIT_MSG
+do_cmd git commit -F $COMMIT_MSG
 do_cmd rm $COMMIT_MSG
+do_cmd git show
