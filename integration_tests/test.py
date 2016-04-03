@@ -13,7 +13,7 @@ class IntegrationTest(object):
         self.path = path
         self.package = package
         self.mem = mem
-        self.timeout = 10
+        self.timeout = timeout
         self.can_crash = can_crash
         self.can_shutdown = can_shutdown
         self.check_state = check_state
