@@ -56,6 +56,11 @@ class IntegrationTest(object):
 
     def run(self, unigornel_root):
         from tempfile import mkstemp
+        from datetime import datetime
+        from socket import gethostname
+
+        timestamp = datetime.utcnow().isoformat()
+        hostname = gethostname()
 
         prefix = 'unigornel-{0}-'.format(self.name)
         _, kernel_path = mkstemp(prefix=prefix)
@@ -93,7 +98,7 @@ class IntegrationTest(object):
         guest = f(cases)
         self.clean(guest, kernel_path)
 
-        return TestSuite(self.name, cases)
+        return TestSuite(self.name, cases, hostname=hostname, package='Integration Tests', timestamp=timestamp)
 
     def build(self, unigornel_root, out=None):
         def f():
