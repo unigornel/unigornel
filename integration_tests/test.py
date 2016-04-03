@@ -8,9 +8,8 @@ from junit_xml import TestCase, TestSuite
 SILENT = False
 
 class IntegrationTest(object):
-    def __init__(self, name, path, package, mem=256, timeout=10, can_crash=False, can_shutdown=False, check_state=None):
+    def __init__(self, name, package, mem=256, timeout=10, can_crash=False, can_shutdown=False, check_state=None):
         self.name = name
-        self.path = path
         self.package = package
         self.mem = mem
         self.timeout = timeout
@@ -25,10 +24,11 @@ class IntegrationTest(object):
 
     @classmethod
     def from_module(cls, m):
+        name = m.__name__.split('.')[-1]
+        package = m.package if hasattr(m, 'package') else name
         return cls(
-            m.name,
-            m.__path__[0],
-            m.package,
+            name,
+            package,
             getattr(m, 'mem', 256),
             getattr(m, 'timeout', 10),
             getattr(m, 'can_crash', False),
@@ -37,18 +37,20 @@ class IntegrationTest(object):
         )
 
     @classmethod
-    def discover(cls, path='.'):
+    def discover(cls, path='tests'):
         from importlib import import_module
         from operator import is_not
         from functools import partial
+        from os.path import splitext
 
-        dirs = [f for f in os.listdir(path) if os.path.isdir(f)]
+        imports = map(lambda f: 'tests.' + splitext(f)[0], os.listdir(path))
         def to_module(f):
             try:
+                log('Importing', f)
                 return import_module(f, '')
             except ImportError:
                 return None
-        modules = filter(partial(is_not, None), map(to_module, dirs))
+        modules = filter(partial(is_not, None), map(to_module, imports))
         modules = filter(lambda m: getattr(m, 'integration_test', False) == True, modules)
         tests = map(cls.from_module, modules)
         return list(tests)
@@ -98,8 +100,8 @@ class IntegrationTest(object):
         def f():
             log("Building '{0}': package {1}".format(self.name, self.package))
 
-            gopath = os.path.join(self.path, 'go')
-            app_path = os.path.join(self.path, 'go', 'src', self.package)
+            gopath = os.path.join(os.getcwd(), 'go')
+            app_path = os.path.join(gopath, 'src', self.package)
             app = UnigornelApp(app_path, gopath, unigornel_root)
             output = app.build(out=out)
             log(output)
@@ -348,7 +350,8 @@ class XenGuest(object):
 def main(unigornel_root, tests, **kwargs):
     if tests is not None:
         try:
-            all_tests = list(map(IntegrationTest.load, tests))
+            paths = map(lambda t: 'tests.' + t, tests)
+            all_tests = list(map(IntegrationTest.load, paths))
         except ImportError as e:
             raise Exception('Could not load a test specified on the command line') from e
     else:

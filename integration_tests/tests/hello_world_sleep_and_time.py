@@ -1,6 +1,4 @@
 integration_test = True
-name = 'HelloWorldSleepAndTimeTest'
-package = 'helloworld'
 
 timeout = 2
 
