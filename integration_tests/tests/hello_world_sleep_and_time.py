@@ -3,6 +3,7 @@ integration_test = True
 timeout = 2
 
 SLEEP_INTERVAL = int(100e6)
+MIN_TIME = 1451606400000000000 # 2016-1-1 0:0:0.0 UTC
 
 def check_state(state):
     import re
@@ -22,4 +23,5 @@ def check_state(state):
     for t in times:
         diff = t - prev
         assert diff >= SLEEP_INTERVAL, "Sleep interval must be >= {0}".format(SLEEP_INTERVAL)
+        assert t >= MIN_TIME, "Time must be after {0}".format(MIN_TIME)
         prev = diff
