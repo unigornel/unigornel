@@ -98,7 +98,7 @@ class IntegrationTest(object):
         guest = f(cases)
         self.clean(guest, kernel_path)
 
-        return TestSuite(self.name, cases, hostname=hostname, package='Integration Tests', timestamp=timestamp)
+        return TestSuite(self.name, cases, hostname=hostname, package='integration_tests', timestamp=timestamp)
 
     def build(self, unigornel_root, out=None):
         def f():
