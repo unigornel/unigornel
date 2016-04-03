@@ -46,7 +46,6 @@ class IntegrationTest(object):
         imports = map(lambda f: 'tests.' + splitext(f)[0], os.listdir(path))
         def to_module(f):
             try:
-                log('Importing', f)
                 return import_module(f, '')
             except ImportError:
                 return None
