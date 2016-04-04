@@ -1,0 +1,8 @@
+# Source
+src/9fans.net
+src/github.com
+src/golang.org
+
+# Binaries
+bin
+pkg
