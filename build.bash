@@ -43,7 +43,7 @@ done
 
 function do_cmd {
     echo "[+] $@"
-    eval "$@"
+    eval -- "$@"
 }
 
 function error {
