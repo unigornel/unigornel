@@ -19,6 +19,7 @@ $ git submodule update --init --recursive
 ## Dependencies
 
 ```
+# apt-get install time
 # apt-get install python3 python3-pip
 # pip3 install junit-xml
 ```
