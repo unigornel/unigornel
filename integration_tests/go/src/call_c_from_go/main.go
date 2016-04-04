@@ -5,10 +5,6 @@ package main
 import "C"
 import "fmt"
 
-//go:cgo_import_static test
-//go:linkname test test
-var test byte
-
 func main() {}
 
 //export Main
