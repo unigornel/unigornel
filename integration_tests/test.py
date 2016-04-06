@@ -54,7 +54,7 @@ class IntegrationTest(object):
         tests = map(cls.from_module, modules)
         return list(tests)
 
-    def run(self, unigornel_root):
+    def run(self, unigornel_root, fast=False):
         from tempfile import mkstemp
         from datetime import datetime
         from socket import gethostname
@@ -69,7 +69,7 @@ class IntegrationTest(object):
         cases = []
         def f(cases):
             # Build application
-            c = self.build(unigornel_root, out=kernel_path)
+            c = self.build(unigornel_root, out=kernel_path, fast=fast)
             cases.append(c)
             if c.is_failure():
                 return None
@@ -100,14 +100,14 @@ class IntegrationTest(object):
 
         return TestSuite(self.name, cases, hostname=hostname, package='integration_tests', timestamp=timestamp)
 
-    def build(self, unigornel_root, out=None):
+    def build(self, unigornel_root, out=None, fast=False):
         def f():
             log("Building '{0}': package {1}".format(self.name, self.package))
 
             gopath = os.path.join(os.getcwd(), 'go')
             app_path = os.path.join(gopath, 'src', self.package)
             app = UnigornelApp(app_path, gopath, unigornel_root)
-            output = app.build(out=out)
+            output = app.build(out=out, build_all=not fast)
             log(output)
             return output, None
         return build_test_case('build', self.name, f)
@@ -351,7 +351,7 @@ class XenGuest(object):
         f = [self.name, self.id, self.mem, self.vcpus, self.raw_state, self.time]
         return 'XenGuest(name={0}, id={1}, mem={2}, vcpus={3}, raw_state={4}, time={5}'.format(*f)
 
-def main(unigornel_root, tests, **kwargs):
+def main(unigornel_root, tests, fast, **kwargs):
     if tests is not None:
         try:
             paths = map(lambda t: 'tests.' + t, tests)
@@ -367,7 +367,7 @@ def main(unigornel_root, tests, **kwargs):
     for i, test in enumerate(all_tests):
         log("----------")
         log("Running test '{0}' ({1}/{2})".format(test.name, i+1, n))
-        ts = test.run(unigornel_root)
+        ts = test.run(unigornel_root, fast=fast)
         test_suites.append(ts)
     return test_suites
 
@@ -377,6 +377,7 @@ def parse(argv, envs):
     parser = ArgumentParser(description='Execute the integration tests')
     parser.add_argument('tests', metavar='test', type=str, nargs='*', help='only run specified tests')
     parser.add_argument('-s', dest='silent', action='store_true', help='silent mode')
+    parser.add_argument('--fast', action='store_true', help='Fast compilation of unikernels')
     parser.add_argument('--junit', type=str, help='write junit xml to specified file')
 
     args = parser.parse_args(argv)
@@ -393,6 +394,7 @@ def parse(argv, envs):
         'unigornel_root' : unigornel_root,
         'tests' : args.tests if len(args.tests) != 0 else None,
         'junit' : args.junit,
+        'fast' : args.fast,
     }
 
 def log(*args, **kwargs):
