@@ -2,6 +2,8 @@
 
 set -e
 
+GOOS=unigornel
+
 function usage {
     echo "usage: build.bash help|-h|--help"
     echo "       build.bash go --gobootstrap path"
@@ -62,7 +64,7 @@ if [ "$CMD" = go ]; then
     if [ -n "$GOROOT_BOOTSTRAP" ]; then
         pushd go/src
         echo "Building Go in $PWD"
-        do_cmd GOROOT_BOOTSTRAP="$GOROOT_BOOTSTRAP" GOOS=netbsd GOARCH=amd64 ./make.bash
+        do_cmd GOROOT_BOOTSTRAP="$GOROOT_BOOTSTRAP" GOOS=$GOOS GOARCH=amd64 ./make.bash
         popd
     else
         error "missing --gobootstrap flag"
@@ -104,10 +106,10 @@ elif [ "$CMD" = "compile" ]; then
         do_cmd GOROOT="$goroot" \
                CGO_ENABLED=1 \
                CGO_CFLAGS=-I"$include" \
-               GOOS=netbsd \
+               GOOS=$GOOS \
                GOARCH=amd64 \
                "$goroot"/bin/go build -buildmode=c-archive $opts -o "$out"
-        do_cmd objcopy --globalize-symbol=_rt0_amd64_netbsd_lib "$out"
+        do_cmd objcopy --globalize-symbol=_rt0_amd64_${GOOS}_lib "$out"
         popd
 
         do_cmd rm -r "$BUILD_DIR"
