@@ -6,7 +6,7 @@ GOOS=unigornel
 
 function usage {
     echo "usage: build.bash help|-h|--help"
-    echo "       build.bash go --gobootstrap path"
+    echo "       build.bash go --gobootstrap path [--fast]"
     echo "       build.bash minios --goarchive app/app.a --goinclude app/"
     echo "       build.bash compile --app path/to/app/dir/ [-o path/to/app.a] [-a] [-x]"
     echo "       build.bash app --app path/to/app/dir/ [-o minios] [-a] [-x]"
@@ -16,6 +16,7 @@ function usage {
 
 HELP=n
 [ -z "$GOROOT_BOOTSTRAP" ] && GOROOT_BOOTSTRAP=
+FAST=n
 MINIOS_GOARCHIVE=
 MINIOS_GOINCLUDE=
 APP_DIR=
@@ -27,7 +28,7 @@ SCRIPT="$0"
 CMD="$1"
 shift
 
-TEMP=`getopt -o ho:ax --long help,gobootstrap:,goarchive:,goinclude:,app: -n build.bash -- "$@"`
+TEMP=`getopt -o ho:ax --long help,gobootstrap:,goarchive:,goinclude:,app:,fast -n build.bash -- "$@"`
 eval set -- "$TEMP"
 while true; do
     case "$1" in
@@ -36,6 +37,7 @@ while true; do
         --goarchive)    MINIOS_GOARCHIVE="$2"   ; shift 2 ;;
         --goinclude)    MINIOS_GOINCLUDE="$2"   ; shift 2 ;;
         --app)          APP_DIR="$2"            ; shift 2 ;;
+        --fast)         FAST=y                  ; shift   ;;
         -o)             O_FLAG="$2"             ; shift 2 ;;
         -a)             A_FLAG=y                ; shift   ;;
         -x)             X_FLAG=y                ; shift   ;;
@@ -64,7 +66,8 @@ if [ "$CMD" = go ]; then
     if [ -n "$GOROOT_BOOTSTRAP" ]; then
         pushd go/src
         echo "Building Go in $PWD"
-        do_cmd GOROOT_BOOTSTRAP="$GOROOT_BOOTSTRAP" GOOS=$GOOS GOARCH=amd64 ./make.bash
+        [ "$FAST" = y ] && fast_opt=--no-clean || fast_opt=
+        do_cmd GOROOT_BOOTSTRAP="$GOROOT_BOOTSTRAP" GOOS=$GOOS GOARCH=amd64 ./make.bash $fast_opt
         popd
     else
         error "missing --gobootstrap flag"
