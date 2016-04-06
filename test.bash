@@ -13,22 +13,24 @@ function itime {
 
 BUILD_GO=y
 INTEGRATION=y
+FAST=n
 SHOW_HELP=n
 
-TEMP=`getopt -o h --long help,no-go,no-integration -n test.bash -- "$@"`
+TEMP=`getopt -o h --long help,no-go,no-integration,fast -n test.bash -- "$@"`
 eval set -- "$TEMP"
 while true; do
     case "$1" in
         -h|--help)      SHOW_HELP=y         ; shift   ;;
         --no-go)        BUILD_GO=n          ; shift   ;;
         --no-integration) INTEGRATION=n     ; shift   ;;
+        --fast)         FAST=y              ; shift   ;;
         --)             shift               ; break   ;;
     esac
 done
 
 if [ "$SHOW_HELP" = y ]; then
     echo "usage: test.bash -h|--help"
-    echo "       test.bash [--no-go] [--no-integration]"
+    echo "       test.bash [--no-go] [--no-integration] [--fast]"
     exit 0
 fi
 
@@ -41,13 +43,15 @@ function do_cmd {
 if [ "$BUILD_GO" = y ]; then
     export GOROOT_BOOTSTRAP
     [ -z "$GOROOT_BOOTSTRAP" ] && error "GOROOT_BOOTSTRAP not set"
-    do_cmd itime -p ./build.bash go
+    [ "$FAST" = y ] && fast_opt=--fast || fast_opt=
+    do_cmd itime -p ./build.bash go $fast_opt
 fi
 
 # Run integration tests
 if [ "$INTEGRATION" = y ]; then
     unigornel_root="$PWD"
     pushd integration_tests
-    UNIGORNEL_ROOT="$unigornel_root" do_cmd itime -p python3 test.py --junit "integration_tests.xml"
+    [ "$FAST" = y ] && fast_opt=--fast || fast_opt=
+    UNIGORNEL_ROOT="$unigornel_root" do_cmd itime -p python3 test.py --junit "integration_tests.xml" $fast_opt
     popd
 fi
