@@ -8,11 +8,12 @@ from junit_xml import TestCase, TestSuite
 SILENT = False
 
 class IntegrationTest(object):
-    def __init__(self, name, package, mem=256, timeout=10, can_crash=False, can_shutdown=False, check_state=None):
+    def __init__(self, name, package, mem=256, timeout=10, stdin=None, can_crash=False, can_shutdown=False, check_state=None):
         self.name = name
         self.package = package
         self.mem = mem
         self.timeout = timeout
+        self.stdin = stdin
         self.can_crash = can_crash
         self.can_shutdown = can_shutdown
         self.check_state = check_state
@@ -31,6 +32,7 @@ class IntegrationTest(object):
             package,
             getattr(m, 'mem', 256),
             getattr(m, 'timeout', 10),
+            getattr(m, 'stdin', None),
             getattr(m, 'can_crash', False),
             getattr(m, 'can_shutdown', False),
             getattr(m, 'check_state', None),
@@ -125,7 +127,7 @@ class IntegrationTest(object):
                 raise Exception('Could not create guest with kernel {0}'.format(kernel_path)) from e
 
             try:
-                state = g.unpause_and_collect(timeout=self.timeout)
+                state = g.unpause_and_collect(self.stdin, timeout=self.timeout)
             except Exception as e:
                 raise Exception('Could not run guest with kernel {0}'.format(kernel_path)) from e
         except Exception as e:
@@ -281,10 +283,14 @@ class XenGuest(object):
         from subprocess import call
         call(['xl', 'destroy', str(self.id)])
 
-    def unpause_and_collect(self, timeout):
+    def unpause_and_collect(self, stdin, timeout):
         from subprocess import Popen, PIPE, STDOUT, call
         with Popen(['xl', 'console', str(self.id)], stdout=PIPE, stderr=STDOUT, stdin=PIPE) as console:
             call(['xl', 'unpause', str(self.id)])
+
+            if stdin:
+                console.stdin.write(stdin)
+                console.stdin.flush()
 
             # Wait until the unikernel is shutdown or the timeout is reached
             deadline = time.monotonic() + timeout
