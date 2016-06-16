@@ -41,10 +41,12 @@ function do_cmd {
 
 # Build Go
 if [ "$BUILD_GO" = y ]; then
+    pushd go/src
     export GOROOT_BOOTSTRAP
     [ -z "$GOROOT_BOOTSTRAP" ] && error "GOROOT_BOOTSTRAP not set"
-    [ "$FAST" = y ] && fast_opt=--fast || fast_opt=
-    do_cmd itime -p ./build.bash go $fast_opt
+    [ "$FAST" = y ] && fast_opt=--no-clean || fast_opt=
+    do_cmd GOOS=unigornel GOARCH=amd64 ./make.bash $fast_opt
+    popd
 fi
 
 # Run integration tests
