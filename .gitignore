@@ -2,8 +2,8 @@
 .*.sw[a-z]
 
 # Build
-build-*
 *.xml
+unigornel
 
 # Python
 __pycache__
