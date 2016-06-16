@@ -81,34 +81,36 @@ elif [ "$CMD" = "compile" ]; then
         BUILD_DIR=build-$$
         do_cmd rm -rf "$BUILD_DIR"
 
-        # Copy header files
-        echo "Compiling Go in ./$BUILD_DIR"
-        do_cmd mkdir "$BUILD_DIR"
-        echo "[+] Copying header files"
-        do_cmd cp Makefile.app "$BUILD_DIR"/Makefile
+        # Make sure Mini-OS header files are there
         pushd minios
         do_cmd make links
         popd
-        pushd "$BUILD_DIR"
-        do_cmd MINIOS_ROOT=../minios make include/mini-os
-        popd
+
+        # Copy header files
+        echo "Compiling Go in ./$BUILD_DIR"
+        do_cmd mkdir "$BUILD_DIR"
 
         # Compile application
         echo "[+] Compiling Go application in $APP_DIR"
         [ -z "$O_FLAG" ] && out="$BUILD_DIR"/a.out || out="$O_FLAG"
         out="$(realpath "$out")"
-        include="$(realpath "$BUILD_DIR"/include)"
         goroot="$(realpath "./go")"
+        minios="$(realpath minios)"
 
         opts=
         [ "$X_FLAG" = y ] && opts="$opts -x"
         [ "$A_FLAG" = y ] && opts="$opts -a"
 
+        include=
+        include="$include -isystem $minios/include"
+        include="$include -isystem $minios/inlcude/x86"
+        include="$include -isystem $minios/include/x86_64"
+
         pushd "$APP_DIR"
         export GOPATH
         do_cmd GOROOT="$goroot" \
                CGO_ENABLED=1 \
-               CGO_CFLAGS=-I"$include" \
+               CGO_CFLAGS="\"$include\"" \
                GOOS=$GOOS \
                GOARCH=amd64 \
                "$goroot"/bin/go build -buildmode=c-archive $opts -o "$out"
