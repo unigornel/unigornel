@@ -107,8 +107,7 @@ class IntegrationTest(object):
             log("Building '{0}': package {1}".format(self.name, self.package))
 
             gopath = os.path.join(os.getcwd(), 'go')
-            app_path = os.path.join(gopath, 'src', self.package)
-            app = UnigornelApp(app_path, gopath, unigornel_root)
+            app = UnigornelApp(self.package, gopath, unigornel_root)
             output = app.build(out=out, build_all=not fast)
             log(output)
             return output, None
@@ -180,20 +179,22 @@ class IntegrationTest(object):
                 pass
 
 class UnigornelApp(object):
-    BUILD_CMD = './build.bash'
+    BUILD_CMD = './unigornel'
 
-    def __init__(self, path, gopath, unigornel_root):
-        self.path = path
+    def __init__(self, package, gopath, unigornel_root):
+        self.package = package
         self.gopath = gopath
         self.unigornel_root = unigornel_root
 
     def build(self, out=None, build_all=True, verbose=True):
         from subprocess import Popen, PIPE, STDOUT
 
-        argv = [self.BUILD_CMD, 'app', '--app', self.path]
+        # TODO
+        argv = [self.BUILD_CMD, 'build']
         if out is not None: argv += ['-o', out]
         if build_all:       argv += ['-a']
         if verbose:         argv += ['-x']
+        argv += [self.package]
 
         env = os.environ.copy()
         env['GOPATH'] = self.gopath
@@ -210,7 +211,7 @@ class UnigornelApp(object):
 
                 proc.wait()
                 if proc.returncode != 0:
-                    raise Exception('error: build.bash returned code {0}'.format(proc.returncode))
+                    raise Exception('error: unigornel returned code {0}'.format(proc.returncode))
 
 class Kernel(object):
     def __init__(self, kernel, memory, name, on_crash='preserve'):

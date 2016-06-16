@@ -49,6 +49,15 @@ if [ "$BUILD_GO" = y ]; then
     popd
 fi
 
+# Build unigornel
+do_cmd go get -v
+do_cmd go build -o unigornel
+cat > .unigornel.yaml <<EOF
+goroot: $PWD/go
+minios: $PWD/minios
+EOF
+eval $(./unigornel env -c .unigornel.yaml)
+
 # Run integration tests
 if [ "$INTEGRATION" = y ]; then
     unigornel_root="$PWD"
