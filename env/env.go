@@ -114,5 +114,9 @@ func configToEnvVars(c config.Config) []envVar {
 			Name:  MiniOSRootEnv,
 			Value: c.MiniOS,
 		},
+		{
+			Name:  "PATH",
+			Value: c.GoRoot + "/bin:$PATH",
+		},
 	}
 }
