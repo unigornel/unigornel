@@ -1,4 +1,4 @@
-package helloworld
+package console
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ const category = "console"
 var SimpleTest = tests.SimpleTest{
 	Name:        "hello_world",
 	Category:    category,
-	Package:     tests.SimpleTestPackage("helloworld", "simple"),
+	Package:     tests.SimpleTestPackage(category, "simple"),
 	Memory:      256,
 	Timeout:     10 * time.Second,
 	CanCrash:    true,
@@ -31,7 +31,7 @@ var SimpleTest = tests.SimpleTest{
 var SleepAndTimeTest = tests.SimpleTest{
 	Name:       "sleep_and_time",
 	Category:   category,
-	Package:    tests.SimpleTestPackage("helloworld", "sleep_and_time"),
+	Package:    tests.SimpleTestPackage(category, "sleep_and_time"),
 	Memory:     256,
 	Timeout:    2 * time.Second,
 	CanTimeout: true,
@@ -75,7 +75,7 @@ var SleepAndTimeTest = tests.SimpleTest{
 var ReadFromConsoleTest = tests.SimpleTest{
 	Name:        "read_from_console",
 	Category:    category,
-	Package:     tests.SimpleTestPackage("helloworld", "read_from_console"),
+	Package:     tests.SimpleTestPackage(category, "read_from_console"),
 	Memory:      256,
 	Timeout:     10 * time.Second,
 	CanCrash:    true,

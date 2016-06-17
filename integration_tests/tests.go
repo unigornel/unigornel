@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.ugent.be/unigornel/integration_tests/tests"
-	"github.ugent.be/unigornel/integration_tests/tests/helloworld"
+	"github.ugent.be/unigornel/integration_tests/tests/console"
 )
 
 var allTests = []tests.Test{
-	&helloworld.SimpleTest,
-	&helloworld.SleepAndTimeTest,
-	&helloworld.ReadFromConsoleTest,
+	&console.SimpleTest,
+	&console.SleepAndTimeTest,
+	&console.ReadFromConsoleTest,
 }
