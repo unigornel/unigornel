@@ -150,6 +150,8 @@ func (t *SimpleTest) Run(w io.Writer) error {
 	case <-done:
 		return errors.New("console unexpectedly exited")
 	case err := <-exited:
+		// Make sure the console can catch up
+		time.Sleep(1 * time.Second)
 		console.Process.Kill()
 		if err != nil {
 			return err
