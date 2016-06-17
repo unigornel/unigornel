@@ -18,6 +18,7 @@ type SimpleTest struct {
 	Name        string
 	Package     string
 	Memory      int
+	Stdin       []byte
 	Timeout     time.Duration
 	CanCrash    bool
 	CanShutdown bool
@@ -84,12 +85,21 @@ func (t *SimpleTest) Run(w io.Writer) error {
 	console := t.domain.Console()
 	console.Stdout = io.MultiWriter(w, out)
 	console.Stderr = console.Stdout
-	if _, err := console.StdinPipe(); err != nil {
+	stdin, err := console.StdinPipe()
+	if err != nil {
 		return err
 	}
 
+	fmt.Fprintln(w, "[+] attching to the console")
 	if err := console.Start(); err != nil {
 		return err
+	}
+
+	if t.Stdin != nil {
+		fmt.Fprintln(w, "[+] writing to console")
+		if _, err := stdin.Write(t.Stdin); err != nil {
+			return err
+		}
 	}
 
 	done := make(chan struct{})
@@ -125,6 +135,7 @@ func (t *SimpleTest) Run(w io.Writer) error {
 		close(timeout)
 	}()
 
+	fmt.Fprintln(w, "[+] unpausing unikernel domain")
 	if err := t.domain.Unpause().Run(); err != nil {
 		console.Process.Kill()
 		return err

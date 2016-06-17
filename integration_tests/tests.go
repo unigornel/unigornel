@@ -8,4 +8,5 @@ import (
 var allTests = []tests.Test{
 	&helloworld.SimpleTest,
 	&helloworld.SleepAndTimeTest,
+	&helloworld.ReadFromConsoleTest,
 }

@@ -67,3 +67,19 @@ var SleepAndTimeTest = tests.SimpleTest{
 		return nil
 	},
 }
+
+var ReadFromConsoleTest = tests.SimpleTest{
+	Name:        "read_from_console",
+	Package:     tests.SimpleTestPackage("helloworld", "read_from_console"),
+	Memory:      256,
+	Timeout:     10 * time.Second,
+	CanCrash:    true,
+	CanShutdown: true,
+	Stdin:       []byte("Unigornel\n"),
+	CheckRun: func(out string) error {
+		if !strings.Contains(out, "Hello, what's your name? Hello, Unigornel") {
+			return fmt.Errorf("console output did not match")
+		}
+		return nil
+	},
+}
