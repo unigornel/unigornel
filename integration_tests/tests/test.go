@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.ugent.be/unigornel/integration_tests/junit"
 )
@@ -20,9 +21,10 @@ type Test interface {
 }
 
 type Result struct {
-	Test   Test
-	Error  error
-	Output string
+	Test     Test
+	Error    error
+	Output   string
+	Duration time.Duration
 }
 
 func JUnit(r Result) junit.TestCase {
@@ -30,6 +32,7 @@ func JUnit(r Result) junit.TestCase {
 		ClassName: r.Test.GetCategory() + "." + r.Test.GetName(),
 		Name:      r.Test.GetName(),
 		Output:    r.Output,
+		Time:      fmt.Sprintf("%f", r.Duration.Seconds()),
 	}
 	if r.Error != nil {
 		tc.Failure = &junit.Failure{
@@ -41,7 +44,12 @@ func JUnit(r Result) junit.TestCase {
 }
 
 func Run(t Test) (result Result) {
+	start := time.Now()
 	result.Test = t
+	defer func() {
+		result.Duration = time.Now().Sub(start)
+		fmt.Println("[+] test ended in", result.Duration)
+	}()
 	defer func() {
 		if result.Error == nil {
 			fmt.Println("[+] successfully ran test")
