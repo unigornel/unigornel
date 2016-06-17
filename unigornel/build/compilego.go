@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
-	"github.ugent.be/unigornel/env"
-	"github.ugent.be/unigornel/exec"
+	"github.ugent.be/unigornel/unigornel/env"
+	"github.ugent.be/unigornel/unigornel/exec"
 
 	"github.com/urfave/cli"
 )

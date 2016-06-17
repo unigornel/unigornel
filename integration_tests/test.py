@@ -179,7 +179,7 @@ class IntegrationTest(object):
                 pass
 
 class UnigornelApp(object):
-    BUILD_CMD = './unigornel'
+    BUILD_CMD = './unigornel/unigornel'
 
     def __init__(self, package, gopath, unigornel_root):
         self.package = package

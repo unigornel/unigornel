@@ -7,7 +7,7 @@ import (
 	"os/user"
 	"path"
 
-	"github.ugent.be/unigornel/config"
+	"github.ugent.be/unigornel/unigornel/config"
 
 	"github.com/urfave/cli"
 )
