@@ -42,7 +42,7 @@ var SleepAndTimeTest = tests.SimpleTest{
 		r := regexp.MustCompile("^(\\d+) \\[.*\\] Hello World!")
 		lines := strings.Split(out, "\n")
 
-		minMatches := int(2 * time.Second / (time.Duration(sleepInterval) * time.Nanosecond))
+		minMatches := int(1 * time.Second / (time.Duration(sleepInterval) * time.Nanosecond))
 		numMatches := 0
 
 		prev := int64(0)
