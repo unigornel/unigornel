@@ -10,8 +10,11 @@ import (
 	"github.ugent.be/unigornel/integration_tests/tests"
 )
 
+const category = "console"
+
 var SimpleTest = tests.SimpleTest{
 	Name:        "hello_world",
+	Category:    category,
 	Package:     tests.SimpleTestPackage("helloworld", "simple"),
 	Memory:      256,
 	Timeout:     10 * time.Second,
@@ -27,6 +30,7 @@ var SimpleTest = tests.SimpleTest{
 
 var SleepAndTimeTest = tests.SimpleTest{
 	Name:       "sleep_and_time",
+	Category:   category,
 	Package:    tests.SimpleTestPackage("helloworld", "sleep_and_time"),
 	Memory:     256,
 	Timeout:    2 * time.Second,
@@ -70,6 +74,7 @@ var SleepAndTimeTest = tests.SimpleTest{
 
 var ReadFromConsoleTest = tests.SimpleTest{
 	Name:        "read_from_console",
+	Category:    category,
 	Package:     tests.SimpleTestPackage("helloworld", "read_from_console"),
 	Memory:      256,
 	Timeout:     10 * time.Second,

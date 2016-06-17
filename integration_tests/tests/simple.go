@@ -16,6 +16,7 @@ import (
 
 type SimpleTest struct {
 	Name        string
+	Category    string
 	Package     string
 	Memory      int
 	Stdin       []byte
@@ -38,6 +39,10 @@ func SimpleTestPackage(arg ...string) string {
 
 func (t *SimpleTest) GetName() string {
 	return t.Name
+}
+
+func (t *SimpleTest) GetCategory() string {
+	return t.Category
 }
 
 func (t *SimpleTest) Build(w io.Writer) error {

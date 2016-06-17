@@ -11,6 +11,7 @@ import (
 
 type Test interface {
 	GetName() string
+	GetCategory() string
 	Build(io.Writer) error
 	Setup(io.Writer) error
 	Run(io.Writer) error
@@ -26,7 +27,7 @@ type Result struct {
 
 func JUnit(r Result) junit.TestCase {
 	tc := junit.TestCase{
-		ClassName: r.Test.GetName(),
+		ClassName: r.Test.GetCategory() + "." + r.Test.GetName(),
 		Name:      r.Test.GetName(),
 		Output:    r.Output,
 	}
