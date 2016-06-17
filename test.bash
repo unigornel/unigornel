@@ -61,19 +61,23 @@ if [ "$BUILD_GO" = y ]; then
 fi
 
 # Build unigornel
+pushd unigornel
 do_cmd go get -v
 do_cmd go build -o unigornel
 cat > .unigornel.yaml <<EOF
-goroot: $PWD/go
-minios: $PWD/minios
+goroot: $PWD/../go
+minios: $PWD/../minios
 EOF
 eval $(./unigornel env -c .unigornel.yaml)
+export PATH="$PWD:$PATH"
+popd
 
 # Run integration tests
 if [ "$INTEGRATION" = y ]; then
     unigornel_root="$PWD"
     pushd integration_tests
-    [ "$FAST" = y ] && fast_opt=--fast || fast_opt=
-    UNIGORNEL_ROOT="$unigornel_root" do_cmd itime -p python3 test.py --junit "integration_tests.xml" $fast_opt
+    do_cmd go get -v
+    go build -o "test"
+    ./test -junit "integration_tests.xml"
     popd
 fi

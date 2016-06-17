@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/urfave/cli"
-	"github.ugent.be/unigornel/env"
-	"github.ugent.be/unigornel/exec"
+	"github.ugent.be/unigornel/unigornel/env"
+	"github.ugent.be/unigornel/unigornel/exec"
 )
 
 // CompileOS is the `compile-os` command

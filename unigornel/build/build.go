@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	"github.ugent.be/unigornel/env"
+	"github.ugent.be/unigornel/unigornel/env"
 )
 
 // Build is the `build` command.
