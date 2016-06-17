@@ -6,5 +6,6 @@ import (
 )
 
 var allTests = []tests.Test{
-	&helloworld.Test,
+	&helloworld.SimpleTest,
+	&helloworld.SleepAndTimeTest,
 }

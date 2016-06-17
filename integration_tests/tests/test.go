@@ -42,6 +42,13 @@ func JUnit(r Result) junit.TestCase {
 func Run(t Test) (result Result) {
 	result.Test = t
 	defer func() {
+		if result.Error == nil {
+			fmt.Println("[+] successfully ran test")
+		} else {
+			fmt.Println("[-] test error:", result.Error)
+		}
+	}()
+	defer func() {
 		if r := recover(); r != nil {
 			err, ok := r.(error)
 			if !ok {
