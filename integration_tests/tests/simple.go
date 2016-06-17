@@ -118,19 +118,19 @@ func (t *SimpleTest) Run(w io.Writer) error {
 		for {
 			select {
 			case <-done:
-				break
+				return
 			case <-timeout:
-				break
+				return
 			case <-time.After(1 * time.Second):
 				c, err := t.domain.Update()
 				if err != nil {
 					exited <- err
 					close(exited)
-					break
+					return
 				}
 				if c.State.Check(xen.DomainStateShutdown) || c.State.Check(xen.DomainStateCrashed) {
 					close(exited)
-					break
+					return
 				}
 			}
 		}
