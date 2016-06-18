@@ -3,13 +3,16 @@ unigornel
 
 [![Build Status](https://jenkins.unigornel.org/buildStatus/icon?job=unigornel-master)](https://jenkins.unigornel.org/job/unigornel-master/)
 
-This software is in development phase.
+This software is in the development phase.
 
 About
 -----
 
 Unigornel is a library operating system written in Go. It compiles Go code to
 unikernels that run under the Xen hypervisor.
+
+ - [Creating a Hello World! unikernel](https://www.unigornel.org/doku.php?id=getting_started)
+ - [Getting Started for Developers](https://www.unigornel.org/doku.php?id=development)
 
 Installation
 ------------
