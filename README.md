@@ -3,7 +3,7 @@ unigornel
 
 [![Build Status](https://jenkins.unigornel.org/buildStatus/icon?job=unigornel-master)](https://jenkins.unigornel.org/job/unigornel-master/)
 
-This software is in the development phase.
+This software is in the development phase, see the [roadmap](https://unigornel.org/doku.php?id=development:roadmap).
 
 About
 -----
