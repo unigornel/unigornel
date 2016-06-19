@@ -1,6 +1,6 @@
 [submodule "minios"]
 	path = minios
-	url = git@github.com:unigornel/minios
+	url = https://github.com/unigornel/minios
 [submodule "go"]
 	path = go
-	url = git@github.com:unigornel/go
+	url = https://github.com/unigornel/go
