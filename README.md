@@ -36,7 +36,7 @@ The installation procedure installs the `unigornel` binary in `$GOPATH/bin`.
 This binary is used to setup the environment and compile unikernels.
 
 ```
-eval $(unikernel env)
+eval $(unigornel env)
 cd $GOPATH/src/your-unikernel
 unikernel build -o your-unikernel
 ```
