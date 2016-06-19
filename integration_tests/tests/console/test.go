@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.ugent.be/unigornel/integration_tests/tests"
+	"github.com/unigornel/unigornel/integration_tests/tests"
 )
 
 const category = "console"

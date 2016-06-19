@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.ugent.be/unigornel/integration_tests/junit"
-	"github.ugent.be/unigornel/integration_tests/tests"
+	"github.com/unigornel/unigornel/integration_tests/junit"
+	"github.com/unigornel/unigornel/integration_tests/tests"
 )
 
 type options struct {

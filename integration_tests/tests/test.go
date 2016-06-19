@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.ugent.be/unigornel/integration_tests/junit"
+	"github.com/unigornel/unigornel/integration_tests/junit"
 )
 
 type Test interface {

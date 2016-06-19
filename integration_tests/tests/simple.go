@@ -11,7 +11,7 @@ import (
 	"path"
 	"time"
 
-	"github.ugent.be/unigornel/integration_tests/xen"
+	"github.com/unigornel/unigornel/integration_tests/xen"
 )
 
 type SimpleTest struct {

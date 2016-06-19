@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.ugent.be/unigornel/integration_tests/tests"
-	"github.ugent.be/unigornel/integration_tests/tests/console"
+	"github.com/unigornel/unigornel/integration_tests/tests"
+	"github.com/unigornel/unigornel/integration_tests/tests/console"
 )
 
 var allTests = []tests.Test{

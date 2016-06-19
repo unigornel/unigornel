@@ -3,9 +3,8 @@ package main
 import (
 	"os"
 
-	"github.ugent.be/unigornel/unigornel/build"
-	"github.ugent.be/unigornel/unigornel/env"
-
+	"github.com/unigornel/unigornel/unigornel/build"
+	"github.com/unigornel/unigornel/unigornel/env"
 	"github.com/urfave/cli"
 )
 

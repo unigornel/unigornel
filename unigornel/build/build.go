@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/unigornel/unigornel/unigornel/env"
 	"github.com/urfave/cli"
-	"github.ugent.be/unigornel/unigornel/env"
 )
 
 // Build is the `build` command.
