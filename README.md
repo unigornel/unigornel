@@ -23,7 +23,7 @@ We assume
 
 ```
 go get -v github.com/unigornel/unigornel/unigornel
-cd $GOPATH/src/github.com/unigornel
+cd $GOPATH/src/github.com/unigornel/unigornel
 git submodule update --init --recursive
 GOROOT_BOOTSTRAP=/usr/local/go make
 make install
@@ -36,7 +36,7 @@ The installation procedure installs the `unigornel` binary in `$GOPATH/bin`.
 This binary is used to setup the environment and compile unikernels.
 
 ```
-eval $(unikernel env)
+eval $(unigornel env)
 cd $GOPATH/src/your-unikernel
 unikernel build -o your-unikernel
 ```
