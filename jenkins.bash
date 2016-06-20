@@ -2,4 +2,4 @@
 
 set -e
 
-./test.bash --setup-gopath
+taskset -c "${EXECUTOR_NUMBER}" ./test.bash --setup-gopath
