@@ -13,6 +13,8 @@ add_pr_refs() {
 pushd go && add_pr_refs && popd
 pushd minios && add_pr_refs && popd
 
+git submodule update --init --recursive
+
 opts=
 if [ "$1" = "--fast" ]; then
     opts=--fast
