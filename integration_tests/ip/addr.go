@@ -2,9 +2,11 @@ package ip
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"net"
+	"os/exec"
 	"regexp"
 )
 
@@ -18,6 +20,14 @@ type Inet struct {
 type Addr struct {
 	Interface string
 	Inet      *Inet
+}
+
+func AddrShow() ([]Addr, error) {
+	out, err := exec.Command("ip", "addr", "show").Output()
+	if err != nil {
+		return nil, err
+	}
+	return parseAddrShow(bytes.NewBuffer(out))
 }
 
 func parseDevLine(line string) (string, error) {
