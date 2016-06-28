@@ -2,8 +2,10 @@ package route
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
+	"os/exec"
 	"regexp"
 )
 
@@ -12,6 +14,14 @@ type Route struct {
 	Gateway     string
 	Netmask     string
 	Interface   string
+}
+
+func AllRoutes() ([]Route, error) {
+	out, err := exec.Command("route", "-n").Output()
+	if err != nil {
+		return nil, err
+	}
+	return parseRouteN(bytes.NewBuffer(out))
 }
 
 func parseRouteNLine(line string) (*Route, error) {
