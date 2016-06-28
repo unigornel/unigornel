@@ -30,6 +30,20 @@ func AddrShow() ([]Addr, error) {
 	return parseAddrShow(bytes.NewBuffer(out))
 }
 
+func Ifconfig(iface string, ip net.IP, mask net.IPMask) error {
+	maskIP := net.IP(mask).To4()
+	if maskIP == nil {
+		return fmt.Errorf("invalid mask")
+	}
+	_, err := exec.Command(
+		"ifconfig",
+		iface,
+		ip.String(),
+		"netmask", maskIP.String(),
+	).Output()
+	return err
+}
+
 func parseDevLine(line string) (string, error) {
 	r := regexp.MustCompile("^\\d+: (\\S+):")
 	matches := r.FindStringSubmatch(line)
