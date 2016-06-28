@@ -2,8 +2,10 @@ package brctl
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
+	"os/exec"
 	"regexp"
 	"strings"
 )
@@ -13,6 +15,15 @@ type Bridge struct {
 	ID         string
 	STP        bool
 	Interfaces []string
+}
+
+func Show() ([]Bridge, error) {
+	out, err := exec.Command("brctl", "show").Output()
+	if err != nil {
+		return nil, err
+	}
+
+	return parseBrctlShow(bytes.NewBuffer(out))
 }
 
 func parseBrctlShowDeclLine(line string) (*Bridge, error) {
