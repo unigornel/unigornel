@@ -26,6 +26,52 @@ func Show() ([]Bridge, error) {
 	return parseBrctlShow(bytes.NewBuffer(out))
 }
 
+func Create(name string) error {
+	out, err := exec.Command("brctl", "addbr", name).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error: brctl addbr: %v", out)
+	}
+	return nil
+}
+
+func CreateNumbered(prefix string) error {
+	var err error
+
+	for i := 0; i < 5; i++ {
+		bridges, err := Show()
+		if err != nil {
+			return err
+		}
+
+		next := 0
+		for {
+			name := fmt.Sprintf("%s%d", prefix, next)
+
+			found := false
+			for _, b := range bridges {
+				if b.Name == name {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				break
+			}
+
+			next++
+		}
+
+		name := fmt.Sprintf("%s%d", prefix, next)
+		err = Create(name)
+		if err == nil {
+			break
+		}
+	}
+
+	return err
+}
+
 func parseBrctlShowDeclLine(line string) (*Bridge, error) {
 	line = strings.TrimSpace(line)
 	parts := regexp.MustCompile("\\s+").Split(line, -1)
