@@ -12,19 +12,19 @@ import (
 func TestParseRouteNLine(t *testing.T) {
 	cases := []struct {
 		Input       string
-		Result      *Route
+		Result      *Route4
 		ErrorRegexp *regexp.Regexp
 	}{
 		{invalidRouteLine, nil, regexp.MustCompile("invalid")},
 		{
 			Input:       validRouteLine,
-			Result:      &Route{"0.0.0.0", "10.0.2.2", "0.0.0.0", "enp0s3"},
+			Result:      &Route4{"0.0.0.0", "10.0.2.2", "0.0.0.0", "enp0s3"},
 			ErrorRegexp: nil,
 		},
 	}
 
 	for i, c := range cases {
-		result, err := parseRouteNLine(c.Input)
+		result, err := parseRouteN4Line(c.Input)
 		if c.ErrorRegexp != nil && err == nil {
 			assert.NotNil(t, err, "for case %d", i)
 		} else if c.ErrorRegexp == nil && err != nil {
@@ -47,14 +47,14 @@ func TestParseRouteNLine(t *testing.T) {
 func TestParseRouteN(t *testing.T) {
 	cases := []struct {
 		Input       string
-		Result      []Route
+		Result      []Route4
 		ErrorRegexp *regexp.Regexp
 	}{
 		{invalidRoute, nil, regexp.MustCompile("invalid")},
 		{
 			Input:       validRoute,
 			ErrorRegexp: nil,
-			Result: []Route{
+			Result: []Route4{
 				{"0.0.0.0", "10.0.2.2", "0.0.0.0", "enp0s3"},
 				{"10.0.2.0", "0.0.0.0", "255.255.255.0", "enp0s3"},
 				{"10.0.200.0", "0.0.0.0", "255.255.255.0", "test0"},
@@ -64,7 +64,7 @@ func TestParseRouteN(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		result, err := parseRouteN(bytes.NewBuffer([]byte(c.Input)))
+		result, err := parseRouteN4(bytes.NewBuffer([]byte(c.Input)))
 		if c.ErrorRegexp != nil && err == nil {
 			assert.NotNil(t, err, "for case %d", i)
 		} else if c.ErrorRegexp == nil && err != nil {
