@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net"
 	"os/exec"
 	"regexp"
 )
@@ -14,6 +15,23 @@ type Route4 struct {
 	Gateway     string
 	Netmask     string
 	Interface   string
+}
+
+func (route Route4) IPNet() (*net.IPNet, error) {
+	ip := net.ParseIP(route.Destination)
+	if ip == nil {
+		return nil, fmt.Errorf("destination is not a valid IPv4 address")
+	}
+
+	mask := net.ParseIP(route.Netmask)
+	if mask == nil {
+		return nil, fmt.Errorf("netmask is not a valid IPv4 address")
+	}
+
+	return &net.IPNet{
+		IP:   ip,
+		Mask: net.IPMask(mask),
+	}, nil
 }
 
 func AllIPv4Routes() ([]Route4, error) {
