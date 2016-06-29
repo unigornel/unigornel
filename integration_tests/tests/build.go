@@ -8,7 +8,7 @@ import (
 	"os/exec"
 )
 
-func Build(w io.Writer, name, pack string) (string, error) {
+func Build(w io.Writer, name, pack string, other ...string) (string, error) {
 	fh, err := ioutil.TempFile("", "unigornel-tests-")
 	if err != nil {
 		return "", err
@@ -17,12 +17,12 @@ func Build(w io.Writer, name, pack string) (string, error) {
 	file := fh.Name()
 
 	fmt.Fprintf(w, "[+] building %s to %s\n", name, file)
+	args := []string{"build", "-x", "-a", "-o", file}
+	args = append(args, other...)
+	args = append(args, pack)
 	cmd := exec.Command(
 		"unigornel",
-		"build",
-		"-x", "-a",
-		"-o", file,
-		pack,
+		args...,
 	)
 	cmd.Stdout = w
 	cmd.Stderr = w
