@@ -34,18 +34,19 @@ func Create(name string) error {
 	return nil
 }
 
-func CreateNumbered(prefix string) error {
+func CreateNumbered(prefix string) (string, error) {
 	var err error
+	var name string
 
 	for i := 0; i < 5; i++ {
 		bridges, err := Show()
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		next := 0
 		for {
-			name := fmt.Sprintf("%s%d", prefix, next)
+			name = fmt.Sprintf("%s%d", prefix, next)
 
 			found := false
 			for _, b := range bridges {
@@ -62,14 +63,14 @@ func CreateNumbered(prefix string) error {
 			next++
 		}
 
-		name := fmt.Sprintf("%s%d", prefix, next)
+		name = fmt.Sprintf("%s%d", prefix, next)
 		err = Create(name)
 		if err == nil {
 			break
 		}
 	}
 
-	return err
+	return name, err
 }
 
 func parseBrctlShowDeclLine(line string) (*Bridge, error) {
