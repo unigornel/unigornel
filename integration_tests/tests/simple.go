@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
 	"time"
 
+	"github.com/unigornel/unigornel/integration_tests/tests"
 	"github.com/unigornel/unigornel/integration_tests/xen"
 )
 
@@ -46,25 +46,9 @@ func (t *SimpleTest) GetCategory() string {
 }
 
 func (t *SimpleTest) Build(w io.Writer) error {
-	fh, err := ioutil.TempFile("", "unigornel-tests-")
-	if err != nil {
-		return err
-	}
-	fh.Close()
-	t.unikernel = fh.Name()
-
-	fmt.Fprintf(w, "[+] building %s to %s\n", t.Name, t.unikernel)
-	cmd := exec.Command(
-		"unigornel",
-		"build",
-		"-x", "-a",
-		"-o", fh.Name(),
-		t.Package,
-	)
-	cmd.Stdout = w
-	cmd.Stderr = w
-
-	return cmd.Run()
+	file, err := tests.Build(w, t.Name, t.Package)
+	t.unikernel = file
+	return err
 }
 
 func (t *SimpleTest) Setup(w io.Writer) error {
