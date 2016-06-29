@@ -34,6 +34,14 @@ func Create(name string) error {
 	return nil
 }
 
+func Delete(name string) error {
+	out, err := exec.Command("brctl", "delbr", name).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error: brctl delbr: %v", out)
+	}
+	return nil
+}
+
 func CreateNumbered(prefix string) (string, error) {
 	var err error
 	var name string
