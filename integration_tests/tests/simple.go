@@ -33,7 +33,7 @@ type SimpleTest struct {
 }
 
 func SimpleTestPackage(arg ...string) string {
-	s := append([]string{"github.ugent.be/unigornel/integration_tests/tests"}, arg...)
+	s := append([]string{"github.com/unigornel/unigornel/integration_tests/tests"}, arg...)
 	return path.Join(s...)
 }
 
@@ -46,7 +46,7 @@ func (t *SimpleTest) GetCategory() string {
 }
 
 func (t *SimpleTest) Build(w io.Writer) error {
-	file, err := tests.Build(w, t.Name, t.Package)
+	file, err := Build(w, t.Name, t.Package)
 	t.unikernel = file
 	return err
 }
