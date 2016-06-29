@@ -8,6 +8,7 @@ import (
 	"net"
 	"os/exec"
 	"regexp"
+	"strings"
 )
 
 type Inet struct {
@@ -42,6 +43,14 @@ func Ifconfig(iface string, ip net.IP, mask net.IPMask) error {
 		"netmask", maskIP.String(),
 	).Output()
 	return err
+}
+
+func Down(iface string) error {
+	out, err := exec.Command("ip", "link", "set", "dev", iface, "down").CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error: ip link set dev %s down: %v", iface, strings.TrimSpace(string(out)))
+	}
+	return nil
 }
 
 func parseDevLine(line string) (string, error) {
