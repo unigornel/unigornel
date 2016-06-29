@@ -21,6 +21,7 @@ type Kernel struct {
 	Memory  int
 	Name    string
 	OnCrash string
+	VIF     string
 }
 
 func (kernel *Kernel) CreatePausedUniqueName(f func(cmd *exec.Cmd)) (*Domain, error) {
@@ -58,6 +59,9 @@ func (k Kernel) WriteConfiguration(w io.Writer) {
 	fmt.Fprintf(w, "memory = %d\n", k.Memory)
 	fmt.Fprintf(w, "name = \"%s\"\n", k.Name)
 	fmt.Fprintf(w, "on_crash = \"%s\"\n", k.OnCrash)
+	if k.VIF != "" {
+		fmt.Fprintf(w, "vif = %s", k.VIF)
+	}
 }
 
 type DomainState int
