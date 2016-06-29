@@ -10,7 +10,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/unigornel/unigornel/integration_tests/tests"
 	"github.com/unigornel/unigornel/integration_tests/xen"
 )
 
