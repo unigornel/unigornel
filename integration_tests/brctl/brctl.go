@@ -29,7 +29,7 @@ func Show() ([]Bridge, error) {
 func Create(name string) error {
 	out, err := exec.Command("brctl", "addbr", name).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error: brctl addbr: %v", out)
+		return fmt.Errorf("error: brctl addbr: %v", strings.TrimSpace(string(out)))
 	}
 	return nil
 }
@@ -37,7 +37,7 @@ func Create(name string) error {
 func Delete(name string) error {
 	out, err := exec.Command("brctl", "delbr", name).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error: brctl delbr: %v", out)
+		return fmt.Errorf("error: brctl delbr: %v", strings.TrimSpace(string(out)))
 	}
 	return nil
 }
