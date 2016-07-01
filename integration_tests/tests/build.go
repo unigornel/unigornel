@@ -33,3 +33,11 @@ func Build(w io.Writer, name, pack string, other ...string) (string, error) {
 	}
 	return file, nil
 }
+
+func GoGet(w io.Writer, pack string) error {
+	fmt.Fprintf(w, "[+] go get -v -d %v\n", pack)
+	cmd := exec.Command("go", "get", "-v", "-d", pack)
+	cmd.Stdout = w
+	cmd.Stderr = w
+	return cmd.Run()
+}

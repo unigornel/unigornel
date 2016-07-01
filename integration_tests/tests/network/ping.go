@@ -53,8 +53,14 @@ func (t *PingTest) Build(w io.Writer) error {
 		return err
 	}
 
+	p := tests.SimpleTestPackage("network", "ping")
+
+	if err := tests.GoGet(w, p); err != nil {
+		return err
+	}
+
 	file, err := tests.Build(
-		w, "ping", tests.SimpleTestPackage("network", "ping"),
+		w, "ping", p,
 		"--ldflags", "-X main.ipAddress="+t.network.unikernelIP.String(),
 	)
 	t.unikernel = file
