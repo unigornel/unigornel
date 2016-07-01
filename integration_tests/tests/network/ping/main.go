@@ -44,7 +44,7 @@ func Main(unused int) {
 
 	nic.Start()
 
-	fmt.Printf("[+] network is ready")
+	fmt.Println("[+] network is ready")
 
 	m := make(chan int)
 	m <- 0
