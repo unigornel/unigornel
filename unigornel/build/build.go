@@ -17,12 +17,14 @@ func Build() cli.Command {
 			buildAllFlag(),
 			buildVerboseFlag(),
 			outputFlag(),
+			ldflagsFlag(),
 		},
 		Action: func(ctx *cli.Context) error {
 			options := BuildOptions{
 				Go: GoOptions{
 					BuildAll:     ctx.Bool(buildAllFlagName),
 					BuildVerbose: ctx.Bool(buildVerboseFlagName),
+					LDFlags:      ctx.String(ldflagsFlagName),
 				},
 				OS: OSOptions{
 					Output: ctx.String(outputFlagName),
