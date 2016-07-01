@@ -1,14 +1,20 @@
 package network
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"os/exec"
+	"regexp"
+	"time"
 
 	"github.com/unigornel/unigornel/integration_tests/brctl"
 	"github.com/unigornel/unigornel/integration_tests/ip"
+	"github.com/unigornel/unigornel/integration_tests/ping"
 	"github.com/unigornel/unigornel/integration_tests/tests"
 	"github.com/unigornel/unigornel/integration_tests/xen"
 )
@@ -22,6 +28,7 @@ type PingTest struct {
 		unikernelIP net.IP
 		netmask     net.IPMask
 	}
+	responses []ping.Response
 }
 
 func (t *PingTest) GetName() string {
@@ -115,10 +122,152 @@ func (t *PingTest) Setup(w io.Writer) error {
 }
 
 func (t *PingTest) Run(w io.Writer) error {
+	consoleBuffer := bytes.NewBuffer(nil)
+	pingBuffer := bytes.NewBuffer(nil)
+
+	console := t.domain.Console()
+	console.Stdout = io.MultiWriter(w, consoleBuffer)
+	console.Stderr = io.MultiWriter(w, consoleBuffer)
+	_, err := console.StdinPipe()
+	if err != nil {
+		return err
+	}
+
+	pingCmd := ping.Ping(t.network.unikernelIP.String(), "-c", "10", "-i", "0.5", "-W", "1")
+	pingCmd.Stdout = io.MultiWriter(w, pingBuffer)
+	pingCmd.Stderr = w
+
+	fmt.Println(w, "[+] attaching to the console")
+	if err := console.Start(); err != nil {
+		return err
+	}
+
+	done := make(chan struct{})
+	exited := make(chan error)
+	timeout := make(chan struct{})
+	networkReady := make(chan error)
+	pingReady := make(chan error)
+
+	waitForConsole := func() {
+		console.Wait()
+		close(done)
+	}
+	waitForTimeout := func() {
+		time.Sleep(10 * time.Second)
+		close(timeout)
+	}
+	checkDomainState := func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-timeout:
+				return
+			case <-time.After(1 * time.Second):
+				c, err := t.domain.Update()
+				if err != nil {
+					exited <- err
+					close(exited)
+					return
+				}
+				if c.State.Check(xen.DomainStateShutdown) || c.State.Check(xen.DomainStateCrashed) {
+					close(exited)
+					return
+				}
+			}
+		}
+	}
+	waitForReady := func() {
+		defer close(networkReady)
+		fmt.Fprintln(w, "[+] waiting for unikernel network setup")
+		scanner := bufio.NewScanner(consoleBuffer)
+		r := regexp.MustCompile("network.*ready")
+		for scanner.Scan() {
+			line := scanner.Text()
+			if r.MatchString(line) {
+				fmt.Fprintln(w, "[+] unikernel network is ready")
+				return
+			}
+		}
+
+		networkReady <- scanner.Err()
+	}
+	waitForPing := func() {
+		defer close(pingReady)
+
+		err := <-networkReady
+		if err != nil {
+			pingReady <- err
+			return
+		}
+
+		fmt.Fprintln(w, "[+] starting ping:", pingCmd)
+		if err := pingCmd.Start(); err != nil {
+			pingReady <- err
+			return
+		}
+
+		if err := pingCmd.Wait(); err != nil {
+			pingReady <- err
+			return
+		}
+
+		responses, err := ping.Parse(pingBuffer)
+		if err != nil {
+			pingReady <- err
+			return
+		}
+		t.responses = responses
+	}
+
+	go waitForConsole()
+	go waitForTimeout()
+	go checkDomainState()
+	go waitForReady()
+	go waitForPing()
+
+	fmt.Fprintln(w, "[+] unpausing unikernel domain")
+	if err := t.domain.Unpause().Run(); err != nil {
+		console.Process.Kill()
+		return err
+	}
+
+	select {
+	case <-done:
+		return errors.New("console unexpectedly exited")
+	case err := <-exited:
+		// Make sure the console can catch up
+		time.Sleep(1 * time.Second)
+		console.Process.Kill()
+		if err != nil {
+			return err
+		}
+		<-done
+	case <-timeout:
+		console.Process.Kill()
+		<-done
+		return errors.New("test timeout")
+	case err := <-pingReady:
+		console.Process.Kill()
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 func (t *PingTest) Check(w io.Writer) error {
+	if n := len(t.responses); n < 10 {
+		return fmt.Errorf("expected %d responses, got %d", 10, n)
+	}
+
+	for _, r := range t.responses {
+		if r.Error != "" {
+			return fmt.Errorf("ping error for echo request %d: %v", r.ICMPSeq, r.Error)
+		}
+	}
+
 	return nil
 }
 
