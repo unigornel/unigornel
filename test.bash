@@ -43,11 +43,11 @@ function do_cmd {
 
 PROJECT_ROOT="$PWD"
 if [ "$SETUP_GOPATH" = y ]; then
-    do_cmd mkdir -p gopath/src/github.ugent.be
-    do_cmd rm -f gopath/src/github.ugent.be/unigornel
-    do_cmd ln -s ../../.. gopath/src/github.ugent.be/unigornel
+    do_cmd rm -rf gopath
+    do_cmd mkdir -p gopath/src/github.com/unigornel
+    do_cmd ln -s ../../../.. gopath/src/github.com/unigornel/unigornel
     export GOPATH="$PWD/gopath"
-    do_cmd cd gopath/src/github.ugent.be/unigornel
+    do_cmd cd gopath/src/github.com/unigornel/unigornel
 fi
 
 # Build Go

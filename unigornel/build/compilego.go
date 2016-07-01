@@ -15,6 +15,7 @@ const (
 	buildAllFlagName     = "a"
 	buildVerboseFlagName = "x"
 	outputFlagName       = "o"
+	ldflagsFlagName      = "ldflags"
 )
 
 func buildAllFlag() cli.Flag {
@@ -38,6 +39,13 @@ func outputFlag() cli.Flag {
 	}
 }
 
+func ldflagsFlag() cli.Flag {
+	return cli.StringFlag{
+		Name:  ldflagsFlagName,
+		Usage: "-ldflags to pass to go build",
+	}
+}
+
 // CompileGo is the `compile-go` command
 func CompileGo() cli.Command {
 	return cli.Command{
@@ -48,12 +56,14 @@ func CompileGo() cli.Command {
 			buildAllFlag(),
 			buildVerboseFlag(),
 			outputFlag(),
+			ldflagsFlag(),
 		},
 		Action: func(ctx *cli.Context) error {
 			options := GoOptions{
 				BuildAll:     ctx.Bool(buildAllFlagName),
 				BuildVerbose: ctx.Bool(buildVerboseFlagName),
 				Output:       ctx.String(outputFlagName),
+				LDFlags:      ctx.String(ldflagsFlagName),
 			}
 			if options.Output == "" {
 				cli.ShowSubcommandHelp(ctx)
@@ -87,6 +97,7 @@ type GoOptions struct {
 	Package      string
 	MiniOSRoot   string
 	Output       string
+	LDFlags      string
 }
 
 func generateMiniOSLinks(options GoOptions) error {
@@ -127,6 +138,10 @@ func compileCArchive(options GoOptions) error {
 	}
 	if options.BuildVerbose {
 		args = append(args, "-x")
+	}
+
+	if options.LDFlags != "" {
+		args = append(args, "-ldflags", options.LDFlags)
 	}
 
 	if options.Package != "" {

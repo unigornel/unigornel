@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/xml"
 	"flag"
 	"fmt"
@@ -14,12 +16,18 @@ import (
 type options struct {
 	ShowHelp  bool
 	ListTests bool
+	ShowInfo  bool
 	TestName  string
 	JUnit     string
 }
 
 func main() {
 	o := parseOptions()
+
+	if o.ShowInfo {
+		showInfo()
+		return
+	}
 
 	if o.ListTests {
 		listTests()
@@ -60,6 +68,18 @@ func main() {
 func listTests() {
 	for _, test := range allTests {
 		fmt.Println(test.GetName())
+	}
+}
+
+func showInfo() {
+	for _, test := range allTests {
+		fmt.Println(test.GetName())
+		if info := test.GetInfo(); info != "" {
+			scanner := bufio.NewScanner(bytes.NewBuffer([]byte(info)))
+			for scanner.Scan() {
+				fmt.Printf("    %v\n", scanner.Text())
+			}
+		}
 	}
 }
 
@@ -109,6 +129,7 @@ func parseOptions() options {
 
 	flag.BoolVar(&o.ShowHelp, "help", false, "show this help")
 	flag.BoolVar(&o.ListTests, "list", false, "list all known tests and exit")
+	flag.BoolVar(&o.ShowInfo, "info", false, "show all known tests, with info, and exit")
 	flag.StringVar(&o.TestName, "test", "", "run a specific test")
 	flag.StringVar(&o.JUnit, "junit", "", "write a JUnit report to the specified file")
 
