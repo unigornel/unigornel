@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/unigornel/unigornel/integration_tests/brctl"
+	"github.com/unigornel/unigornel/integration_tests/ifconfig"
 	"github.com/unigornel/unigornel/integration_tests/ip"
 	"github.com/unigornel/unigornel/integration_tests/ping"
 	"github.com/unigornel/unigornel/integration_tests/tests"
@@ -106,7 +107,7 @@ func (t *PingTest) Setup(w io.Writer) error {
 	t.bridge = bridge
 
 	fmt.Fprintln(w, "[+] using ip address", t.network.xenIP, "netmask", t.network.netmask)
-	if err := ip.Ifconfig(bridge, t.network.xenIP, t.network.netmask); err != nil {
+	if err := ifconfig.SetIP(bridge, t.network.xenIP, t.network.netmask); err != nil {
 		return err
 	}
 
