@@ -13,6 +13,7 @@ import (
 type Test interface {
 	GetName() string
 	GetCategory() string
+	GetInfo() string
 	Build(io.Writer) error
 	Setup(io.Writer) error
 	Run(io.Writer) error

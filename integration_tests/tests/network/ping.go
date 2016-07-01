@@ -39,6 +39,14 @@ func (t *PingTest) GetCategory() string {
 	return "network"
 }
 
+func (t *PingTest) GetInfo() string {
+	return `ENVIRONMENT:
+    TEST_PING_NETWORK
+	    The network in CIDR style to use (default: 10.123.123.0/30).
+		The network must have room for at least 2 hosts (<=/30).
+`
+}
+
 func (t *PingTest) Build(w io.Writer) error {
 	if err := t.setupNetwork(w); err != nil {
 		return err
@@ -55,8 +63,8 @@ func (t *PingTest) Build(w io.Writer) error {
 func (t *PingTest) setupNetwork(w io.Writer) error {
 	var ipnet *net.IPNet
 	var err error
-	if v := os.Getenv("TEST_PING_NETMASK"); v != "" {
-		fmt.Fprintln(w, "[+] using network from TEST_PING_NETMASK:", v)
+	if v := os.Getenv("TEST_PING_NETWORK"); v != "" {
+		fmt.Fprintln(w, "[+] using network from TEST_PING_NETWORK:", v)
 		_, ipnet, err = net.ParseCIDR(v)
 	} else {
 		v = "10.123.123.0/30"
