@@ -17,6 +17,7 @@ install: unigornel
 	@echo "[+] writing $(UNIGORNEL_YAML)"
 	@echo "goroot: ${PWD}/go" >> $(UNIGORNEL_YAML)
 	@echo "minios: ${PWD}/minios" >> $(UNIGORNEL_YAML)
+	@echo "libraries: ${PWD}/libraries.yaml" >> $(UNIGORNEL_YAML)
 	@cat $(UNIGORNEL_YAML)
 	@echo '[+] run `eval $$(unigornel env)` to setup the unigornel environment'
 

@@ -41,3 +41,11 @@ func GoGet(w io.Writer, pack string) error {
 	cmd.Stderr = w
 	return cmd.Run()
 }
+
+func UpdateLibs(w io.Writer) error {
+	fmt.Fprintf(w, "[+] unigornel libs update\n")
+	cmd := exec.Command("unigornel", "libs", "update")
+	cmd.Stdout = w
+	cmd.Stderr = w
+	return cmd.Run()
+}

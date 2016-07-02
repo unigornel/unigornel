@@ -117,5 +117,9 @@ func configToEnvVars(c config.Config) []envVar {
 			Name:  "PATH",
 			Value: c.GoRoot + "/bin:$PATH",
 		},
+		{
+			Name:  "UNIGORNEL_LIBRARIES",
+			Value: c.Libraries,
+		},
 	}
 }
