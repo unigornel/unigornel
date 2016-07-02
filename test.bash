@@ -67,6 +67,7 @@ do_cmd go build -o unigornel
 cat > .unigornel.yaml <<EOF
 goroot: $PWD/../go
 minios: $PWD/../minios
+libraries: $PWD/../libraries.yaml
 EOF
 eval $(./unigornel env -c .unigornel.yaml)
 export PATH="$PWD:$PATH"
