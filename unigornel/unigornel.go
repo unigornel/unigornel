@@ -5,6 +5,7 @@ import (
 
 	"github.com/unigornel/unigornel/unigornel/build"
 	"github.com/unigornel/unigornel/unigornel/env"
+	"github.com/unigornel/unigornel/unigornel/libs"
 	"github.com/urfave/cli"
 )
 
@@ -18,6 +19,7 @@ func app() *cli.App {
 		build.Build(),
 		build.CompileGo(),
 		build.CompileOS(),
+		libs.Libs(),
 	}
 	app.Writer = os.Stdout
 	app.ErrWriter = os.Stderr
