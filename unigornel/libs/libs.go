@@ -13,16 +13,28 @@ import (
 )
 
 const (
-	DefaultLibrariesFile = "libraries.yaml"
+	libraryFileFlagName = "libs"
 )
+
+func libraryFileFlag() cli.Flag {
+	return cli.StringFlag{
+		Name:   libraryFileFlagName,
+		EnvVar: "UNIGORNEL_LIBRARIES",
+		Usage:  "path to the file containing the unigornel libraries",
+		Value:  "libraries.yaml",
+	}
+}
 
 func Libs() cli.Command {
 	return cli.Command{
 		Name:  "libs",
 		Usage: "manage unigornel libraries",
+		Flags: []cli.Flag{
+			libraryFileFlag(),
+		},
 		Action: func(ctx *cli.Context) error {
 			o := showLibOptions{
-				File: DefaultLibrariesFile,
+				File: ctx.String(libraryFileFlagName),
 			}
 			if err := o.showLibs(); err != nil {
 				return cli.NewExitError("error: "+err.Error(), 1)
@@ -35,7 +47,7 @@ func Libs() cli.Command {
 				Usage: "save the libraries to a file",
 				Action: func(ctx *cli.Context) error {
 					o := saveLibOptions{
-						File: DefaultLibrariesFile,
+						File: ctx.GlobalString(libraryFileFlagName),
 					}
 					if err := o.saveLibs(); err != nil {
 						return cli.NewExitError("error: "+err.Error(), 1)
@@ -48,7 +60,7 @@ func Libs() cli.Command {
 				Usage: "update the libraries from a file",
 				Action: func(ctx *cli.Context) error {
 					o := updateLibOptions{
-						File: DefaultLibrariesFile,
+						File: ctx.GlobalString(libraryFileFlagName),
 					}
 					if err := o.updateLibs(); err != nil {
 						return cli.NewExitError("error: "+err.Error(), 1)
