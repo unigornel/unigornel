@@ -59,6 +59,10 @@ func (t *PingTest) Build(w io.Writer) error {
 		return err
 	}
 
+	if err := tests.UpdateLibs(w); err != nil {
+		return err
+	}
+
 	file, err := tests.Build(
 		w, "ping", p,
 		"--ldflags", "-X main.ipAddress="+t.network.unikernelIP.String(),
