@@ -121,6 +121,7 @@ func (o *saveLibOptions) saveLibs() error {
 		return err
 	}
 
+	var didErr bool
 	for i, p := range libs.Packages {
 		path := path.Join(gopath, "src", p.Name)
 		if err := os.Chdir(path); err != nil {
@@ -130,6 +131,7 @@ func (o *saveLibOptions) saveLibs() error {
 		ref, err := git.ShowRef()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: could not save %v: %v\n", p.Name, err)
+			didErr = true
 			continue
 		}
 
@@ -148,7 +150,15 @@ func (o *saveLibOptions) saveLibs() error {
 		return err
 	}
 
-	return ioutil.WriteFile(o.File, new, 0644)
+	if err := ioutil.WriteFile(o.File, new, 0644); err != nil {
+		return err
+	}
+
+	if didErr {
+		err = fmt.Errorf("could not save some packages")
+	}
+
+	return nil
 }
 
 type updateLibOptions struct {
@@ -171,6 +181,7 @@ func (o *updateLibOptions) updateLibs() error {
 		return err
 	}
 
+	var didErr bool
 	for _, p := range libs.Packages {
 		path := path.Join(gopath, "src", p.Name)
 		if err := os.Chdir(path); err != nil {
@@ -180,11 +191,16 @@ func (o *updateLibOptions) updateLibs() error {
 		fmt.Printf("updating %v to %v\n", p.Name, p.Ref)
 		if err := git.Checkout(p.Ref); err != nil {
 			fmt.Fprintf(os.Stderr, "warning: could not update %v: %v\n", p.Name, err)
+			didErr = true
 		}
 	}
 
 	if err := os.Chdir(curdir); err != nil {
 		return err
+	}
+
+	if didErr {
+		return fmt.Errorf("could not update some packages")
 	}
 
 	return nil
