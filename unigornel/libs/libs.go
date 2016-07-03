@@ -14,6 +14,7 @@ import (
 
 const (
 	libraryFileFlagName = "libs"
+	fetchFlagName       = "fetch"
 )
 
 func libraryFileFlag() cli.Flag {
@@ -22,6 +23,13 @@ func libraryFileFlag() cli.Flag {
 		EnvVar: "UNIGORNEL_LIBRARIES",
 		Usage:  "path to the file containing the unigornel libraries",
 		Value:  "libraries.yaml",
+	}
+}
+
+func fetchFlag() cli.Flag {
+	return cli.BoolFlag{
+		Name:  fetchFlagName,
+		Usage: "issue 'git fetch' before checking out the ref",
 	}
 }
 
@@ -58,9 +66,13 @@ func Libs() cli.Command {
 			{
 				Name:  "update",
 				Usage: "update the libraries from a file",
+				Flags: []cli.Flag{
+					fetchFlag(),
+				},
 				Action: func(ctx *cli.Context) error {
 					o := updateLibOptions{
-						File: ctx.GlobalString(libraryFileFlagName),
+						File:        ctx.GlobalString(libraryFileFlagName),
+						ShouldFetch: ctx.Bool(fetchFlagName),
 					}
 					if err := o.updateLibs(); err != nil {
 						return cli.NewExitError("error: "+err.Error(), 1)
@@ -162,7 +174,8 @@ func (o *saveLibOptions) saveLibs() error {
 }
 
 type updateLibOptions struct {
-	File string
+	File        string
+	ShouldFetch bool
 }
 
 func (o *updateLibOptions) updateLibs() error {
@@ -186,6 +199,11 @@ func (o *updateLibOptions) updateLibs() error {
 		path := path.Join(gopath, "src", p.Name)
 		if err := os.Chdir(path); err != nil {
 			continue
+		}
+
+		if o.ShouldFetch {
+			fmt.Printf("fetching %v\n", p.Name)
+			git.Fetch()
 		}
 
 		fmt.Printf("updating %v to %v\n", p.Name, p.Ref)

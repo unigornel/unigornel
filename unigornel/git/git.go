@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -21,4 +22,12 @@ func Checkout(ref string) error {
 		return fmt.Errorf("%v", strings.TrimSpace(string(out)))
 	}
 	return nil
+}
+
+func Fetch(args ...string) error {
+	args = append([]string{"fetch"}, args...)
+	cmd := exec.Command("git", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
