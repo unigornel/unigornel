@@ -12,4 +12,5 @@ var allTests = []tests.Test{
 	&console.ReadFromConsoleTest,
 
 	&network.PingTest{},
+	&network.PingAddressTest{},
 }
