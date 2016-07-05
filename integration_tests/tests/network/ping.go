@@ -63,10 +63,10 @@ func (t *PingTest) Build(w io.Writer) error {
 		return err
 	}
 
-	file, err := tests.Build(
-		w, "ping", p,
-		"--ldflags", "-X main.ipAddress="+t.network.unikernelIP.String(),
-	)
+	addr := t.network.unikernelIP.String()
+	netmask := net.IP(t.network.netmask).To4().String()
+	ldflags := fmt.Sprintf("-X main.ipAddress=%s -X main.ipNetmask=%s", addr, netmask)
+	file, err := tests.Build(w, "ping", p, "--ldflags", ldflags)
 	t.unikernel = file
 	return err
 }
