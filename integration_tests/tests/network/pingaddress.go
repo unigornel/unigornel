@@ -145,7 +145,7 @@ func (t *PingAddressTest) Run(w io.Writer) error {
 func (t *PingAddressTest) Check(w io.Writer) error {
 	scanner := bufio.NewScanner(bytes.NewBuffer([]byte(t.output)))
 
-	replyRegex := regexp.MustCompile("got.*reply.*(\\d+)")
+	replyRegex := regexp.MustCompile("got.*reply.*?(\\d+)")
 
 	matchIndex := 1
 	for scanner.Scan() {
