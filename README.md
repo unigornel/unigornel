@@ -38,7 +38,7 @@ This binary is used to setup the environment and compile unikernels.
 ```
 eval $(unigornel env)
 cd $GOPATH/src/your-unikernel
-unikernel build -o your-unikernel
+unigornel build -o your-unikernel
 ```
 
 Testing
